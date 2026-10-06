@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Font CSS variables ───────────────────────────────────────────────────────
+   --font-ui      : UI font (font-sans). Follows the UI language.
+   --font-content : User posts (font-content). Japanese first in the
+                    multi-language build; the CN build uses its own language.
+   Both are set as inline styles on <html> by applyUiFont() in locale-font.ts
+   before the app mounts; these are only fallbacks.
+   ─────────────────────────────────────────────────────────────────────────── */
+html {
+  --font-ui:      "Noto Sans JP Variable", "Noto Sans SC Variable", "Noto Sans TC Variable", system-ui, -apple-system, sans-serif;
+  --font-content: "Noto Sans JP Variable", "Noto Sans TC Variable", "Noto Sans SC Variable", system-ui, -apple-system, sans-serif;
+}
+
+/* Theme-dependent values for scoped component styles. Vue compiles
+   `:global(.dark) .foo` down to just `.dark`, so components read these
+   variables instead of branching on .dark themselves. */
+:root {
+  --mask-bg: rgba(255, 255, 255, 0.9);
+  --scroll-thumb: rgba(0, 0, 0, 0.18);
+  --scroll-thumb-active: rgba(0, 0, 0, 0.35);
+  --flash-bg: rgba(6, 196, 180, 0.16);
+  --plane-color: #06c4b4;
+  --plane-opacity: 0.16;
+}
+.dark {
+  --mask-bg: rgba(17, 24, 39, 0.9);
+  --scroll-thumb: rgba(255, 255, 255, 0.12);
+  --scroll-thumb-active: rgba(255, 255, 255, 0.28);
+  --flash-bg: rgba(6, 196, 180, 0.2);
+  --plane-color: #35cbbd;
+  --plane-opacity: 0.18;
+}
+
+/* Hide native scrollbar globally — CustomScrollbar component handles it */
+html {
+  overflow: hidden;
+  height: 100%;
+}
+body {
+  height: 100%;
+  overflow: hidden;
+}
+#app {
+  height: 100%;
+}
+
+/* Prevent accidental selection on all decorative SVG icons */
+svg {
+  user-select: none;
+  -webkit-user-select: none;
+}

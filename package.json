@@ -1,0 +1,45 @@
+{
+  "name": "ena",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@12.9.1",
+  "scripts": {
+    "preinstall": "node scripts/check-package-manager.mjs",
+    "dev": "vite",
+    "dev:cn": "vite --mode cn",
+    "build": "vue-tsc -b && vite build",
+    "build:cn": "vue-tsc -b && vite build --mode cn --outDir dist-zh",
+    "preview": "vite preview",
+    "preview:cn": "vite preview --mode cn --outDir dist-zh",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@floating-ui/vue": "^2.0.1",
+    "@fontsource-variable/noto-sans-jp": "^5.3.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.0",
+    "@fontsource-variable/noto-sans-tc": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@vueuse/core": "^13.9.0",
+    "dompurify": "^3.4.16",
+    "marked": "^18.0.14",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.32",
+    "vue-i18n": "^11.4.13",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/forms": "^0.5.11",
+    "@types/node": "^24.12.2",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.10",
+    "vue-tsc": "^3.2.7"
+  }
+}

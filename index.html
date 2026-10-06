@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Mobile browser bar color; follows the theme (stores/settings.ts) -->
+    <meta name="theme-color" content="#ffffff" />
+    <!-- seo:head -->
+    <!-- Apply the theme before first paint; same rule as stores/settings.ts -->
+    <script>
+      try {
+        var saved = localStorage.getItem('pjsk-dark-mode')
+        if (saved === 'true' || (saved === null && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1f2937')
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased">
+    <!-- seo:body -->
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

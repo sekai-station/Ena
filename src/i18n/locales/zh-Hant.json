@@ -1,0 +1,122 @@
+{
+  "app": {
+    "title": "SEKAI Station"
+  },
+  "sidebar": {
+    "rooms": "房間列表",
+    "about": "關於",
+    "status": "運行狀態"
+  },
+  "rooms": {
+    "empty": "暫無房間",
+    "loading": "載入中...",
+    "copyId": "複製房間號",
+    "copyText": "複製文字",
+    "openOriginal": "開啟原始連結",
+    "pin": "置頂",
+    "unpin": "取消置頂",
+    "copied": "已複製",
+    "copyFailed": "複製失敗",
+    "more": "更多操作",
+    "idHint": "點擊複製 · 長按 1 秒屏蔽 10 分鐘",
+    "block": "屏蔽 10 分鐘",
+    "blocked": "已屏蔽 {id}，10 分鐘後恢復",
+    "undo": "復原"
+  },
+  "stats": {
+    "past15m": "15分鐘內",
+    "past1h": "1小時內",
+    "past24h": "24小時內",
+    "rooms": "條"
+  },
+  "announcement": {
+    "title": "系統公告"
+  },
+  "status": {
+    "title": "運行狀態",
+    "pastCount": "歷史統計",
+    "channelHealth": "頻道健康度",
+    "perMinute": "條/分",
+    "noChannelData": "暫無頻道資料",
+    "now": "現在",
+    "autoRefresh": "每 {n} 秒自動更新",
+    "updatedAt": "更新於 {time}"
+  },
+  "settings": {
+    "title": "設定",
+    "filter": "篩選",
+    "expireTime": "房間顯示時長",
+    "filterMode": "模式",
+    "blacklist": "黑名單",
+    "blacklistDesc": "隱藏包含以下關鍵字的房間",
+    "whitelist": "白名單",
+    "whitelistDesc": "只顯示包含以下關鍵字的房間",
+    "addKeyword": "新增關鍵字",
+    "focusMode": "專注模式",
+    "exitFocus": "退出專注",
+    "fontSize": "字型大小",
+    "lineHeight": "行距",
+    "display": "顯示",
+    "clearFilters": "清空",
+    "add": "新增",
+    "blockedRooms": "臨時屏蔽",
+    "unblock": "取消屏蔽 {id}",
+    "minutesLeft": "剩 {n} 分鐘",
+    "durationSeconds": "{n} 秒",
+    "durationMinutes": "{n} 分鐘",
+    "theme": "外觀",
+    "themeSystem": "跟隨系統",
+    "themeLight": "淺色",
+    "themeDark": "深色",
+    "decrease": "減小",
+    "increase": "增大",
+    "blockedHint": "10 分鐘後自動恢復",
+    "blockedEmpty": "長按房間號 1 秒即可屏蔽",
+    "unblockOne": "解除",
+    "unblockAll": "全部解除",
+    "animatedBackground": "動態背景",
+    "on": "開",
+    "off": "關"
+  },
+  "connection": {
+    "connected": "已連線",
+    "connecting": "連線中...",
+    "disconnected": "已斷線",
+    "failed": "無法連線到伺服器",
+    "retryIn": "{n} 秒後重試",
+    "reconnecting": "正在重新連線…"
+  },
+  "a11y": {
+    "openMenu": "開啟選單",
+    "close": "關閉",
+    "toggleSidebar": "展開或收合側邊欄",
+    "removeFilter": "移除過濾詞「{name}」"
+  },
+  "tutorial": {
+    "welcomeTitle": "歡迎來到 SEKAI Station",
+    "welcomeBody": "這裡會即時刷新從社群平台取得的多人遊戲房間資訊，需要花一分鐘熟悉一下基本操作嗎？",
+    "start": "開始指引",
+    "skip": "略過",
+    "stepOf": "{n} / {total}",
+    "copyTitle": "複製房間號",
+    "copyBody": "點一下房間號就會自動複製。點一下 00000 試試。",
+    "pinTitle": "置頂",
+    "pinBody": "可以點這個按鈕置頂房間，它會固定在最上面，不會消失。",
+    "blockTitle": "屏蔽",
+    "blockBody": "暫時不想看到某個房間號？按住它 1 秒，這個房間號會被屏蔽 10 分鐘。按住 00000 試試。",
+    "settingsTitle": "設定",
+    "settingsBody": "關鍵字過濾、房間顯示時長、字級和外觀都在這裡",
+    "focusTitle": "專注模式",
+    "focusBody": "隱藏側邊欄，一屏顯示更多房間。",
+    "autoNext": "完成後自動進入下一步",
+    "skipStep": "略過這一步",
+    "next": "下一步",
+    "finish": "完成",
+    "exit": "結束指引",
+    "example": "這是一個範例"
+  },
+  "seo": {
+    "title": "SEKAI Station",
+    "description": "即時收集展示社群平台上的 Project Sekai 日服多人遊戲房間募集號碼"
+  }
+}

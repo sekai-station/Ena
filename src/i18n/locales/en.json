@@ -1,0 +1,122 @@
+{
+  "app": {
+    "title": "SEKAI Station"
+  },
+  "sidebar": {
+    "rooms": "Room List",
+    "about": "About",
+    "status": "Status"
+  },
+  "rooms": {
+    "empty": "No rooms available",
+    "loading": "Loading...",
+    "copyId": "Copy Room ID",
+    "copyText": "Copy Text",
+    "openOriginal": "Open Original",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "copied": "Copied",
+    "copyFailed": "Copy failed",
+    "more": "More actions",
+    "idHint": "Click to copy · hold 1 s to hide for 10 min",
+    "block": "Hide for 10 min",
+    "blocked": "Hid {id} for 10 minutes",
+    "undo": "Undo"
+  },
+  "stats": {
+    "past15m": "Past 15m",
+    "past1h": "Past 1h",
+    "past24h": "Past 24h",
+    "rooms": "rooms"
+  },
+  "announcement": {
+    "title": "Announcements"
+  },
+  "status": {
+    "title": "Status",
+    "pastCount": "Historical Count",
+    "channelHealth": "Channel Health",
+    "perMinute": "/min",
+    "noChannelData": "No channel data available",
+    "now": "now",
+    "autoRefresh": "Refreshes every {n}s",
+    "updatedAt": "updated {time}"
+  },
+  "settings": {
+    "title": "Settings",
+    "filter": "Filter",
+    "expireTime": "Keep rooms for",
+    "filterMode": "Mode",
+    "blacklist": "Blacklist",
+    "blacklistDesc": "Hide rooms containing these keywords",
+    "whitelist": "Whitelist",
+    "whitelistDesc": "Only show rooms containing these keywords",
+    "addKeyword": "Add keyword",
+    "focusMode": "Focus Mode",
+    "exitFocus": "Exit Focus",
+    "fontSize": "Font Size",
+    "lineHeight": "Line Height",
+    "display": "Display",
+    "clearFilters": "Clear",
+    "add": "Add",
+    "blockedRooms": "Hidden for now",
+    "unblock": "Unhide {id}",
+    "minutesLeft": "{n} min left",
+    "durationSeconds": "{n} s",
+    "durationMinutes": "{n} min",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "decrease": "decrease",
+    "increase": "increase",
+    "blockedHint": "Shown again after 10 minutes",
+    "blockedEmpty": "Hold a room number for 1 s to hide it",
+    "unblockOne": "Unhide",
+    "unblockAll": "Unhide all",
+    "animatedBackground": "Animated background",
+    "on": "On",
+    "off": "Off"
+  },
+  "connection": {
+    "connected": "Connected",
+    "connecting": "Connecting...",
+    "disconnected": "Disconnected",
+    "failed": "Unable to reach the server",
+    "retryIn": "Retrying in {n}s",
+    "reconnecting": "Reconnecting…"
+  },
+  "a11y": {
+    "openMenu": "Open menu",
+    "close": "Close",
+    "toggleSidebar": "Toggle sidebar",
+    "removeFilter": "Remove filter \"{name}\""
+  },
+  "tutorial": {
+    "welcomeTitle": "Welcome to SEKAI Station",
+    "welcomeBody": "Multiplayer room posts from social platforms show up here in real time. Take a minute to learn the basics?",
+    "start": "Show me",
+    "skip": "Skip",
+    "stepOf": "{n} / {total}",
+    "copyTitle": "Copy a room number",
+    "copyBody": "Tap a room number to copy it. Try tapping 00000.",
+    "pinTitle": "Pin to top",
+    "pinBody": "Use this button to pin a room. It stays at the top and does not disappear.",
+    "blockTitle": "Hide a room number",
+    "blockBody": "Don't want to see a room number for now? Hold it for 1 second to hide it for 10 minutes. Try holding 00000.",
+    "settingsTitle": "Settings",
+    "settingsBody": "Keyword filters, how long rooms stay, text size and theme are all here",
+    "focusTitle": "Focus mode",
+    "focusBody": "Hides the sidebar so more rooms fit on screen.",
+    "autoNext": "Moves on once you have done it",
+    "skipStep": "Skip this step",
+    "next": "Next",
+    "finish": "Finish",
+    "exit": "End guide",
+    "example": "This is an example"
+  },
+  "seo": {
+    "title": "SEKAI Station",
+    "description": "Project Sekai (Japan server) multiplayer rooms looking for players on social media, collected and shown in real time"
+  }
+}

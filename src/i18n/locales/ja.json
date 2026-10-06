@@ -1,0 +1,122 @@
+{
+  "app": {
+    "title": "プロセカ Station"
+  },
+  "sidebar": {
+    "rooms": "ルーム一覧",
+    "about": "このサイトについて",
+    "status": "ステータス"
+  },
+  "rooms": {
+    "empty": "ルームはまだありません",
+    "loading": "読み込み中...",
+    "copyId": "ルームIDをコピー",
+    "copyText": "テキストをコピー",
+    "openOriginal": "元の投稿を開く",
+    "pin": "ピン留め",
+    "unpin": "ピン留め解除",
+    "copied": "コピーしました",
+    "copyFailed": "コピーできませんでした",
+    "more": "その他の操作",
+    "idHint": "クリックでコピー・1秒長押しで10分間非表示",
+    "block": "10分間非表示",
+    "blocked": "{id} を10分間非表示にしました",
+    "undo": "元に戻す"
+  },
+  "stats": {
+    "past15m": "15分以内",
+    "past1h": "1時間以内",
+    "past24h": "24時間以内",
+    "rooms": "件"
+  },
+  "announcement": {
+    "title": "システム案内"
+  },
+  "status": {
+    "title": "ステータス",
+    "pastCount": "過去の集計",
+    "channelHealth": "チャンネル稼働状況",
+    "perMinute": "件/分",
+    "noChannelData": "チャンネルデータがありません",
+    "now": "現在",
+    "autoRefresh": "{n} 秒ごとに自動更新",
+    "updatedAt": "{time} 更新"
+  },
+  "settings": {
+    "title": "設定",
+    "filter": "フィルター",
+    "expireTime": "ルーム表示時間",
+    "filterMode": "モード",
+    "blacklist": "ブラックリスト",
+    "blacklistDesc": "以下のキーワードを含むルームを隠す",
+    "whitelist": "ホワイトリスト",
+    "whitelistDesc": "以下のキーワードを含むルームだけ表示",
+    "addKeyword": "キーワードを追加",
+    "focusMode": "集中モード",
+    "exitFocus": "集中モード解除",
+    "fontSize": "文字サイズ",
+    "lineHeight": "行間",
+    "display": "表示",
+    "clearFilters": "クリア",
+    "add": "追加",
+    "blockedRooms": "一時的に非表示",
+    "unblock": "{id} の非表示を解除",
+    "minutesLeft": "残り{n}分",
+    "durationSeconds": "{n}秒",
+    "durationMinutes": "{n}分",
+    "theme": "テーマ",
+    "themeSystem": "システム",
+    "themeLight": "ライト",
+    "themeDark": "ダーク",
+    "decrease": "小さく",
+    "increase": "大きく",
+    "blockedHint": "10分後に自動で戻ります",
+    "blockedEmpty": "ルーム番号を1秒長押しすると非表示にできます",
+    "unblockOne": "解除",
+    "unblockAll": "すべて解除",
+    "animatedBackground": "背景アニメーション",
+    "on": "オン",
+    "off": "オフ"
+  },
+  "connection": {
+    "connected": "接続済み",
+    "connecting": "接続中...",
+    "disconnected": "切断されました",
+    "failed": "サーバーに接続できません",
+    "retryIn": "{n} 秒後に再接続",
+    "reconnecting": "再接続しています…"
+  },
+  "a11y": {
+    "openMenu": "メニューを開く",
+    "close": "閉じる",
+    "toggleSidebar": "サイドバーの表示切替",
+    "removeFilter": "フィルター「{name}」を削除"
+  },
+  "tutorial": {
+    "welcomeTitle": "プロセカ Station へようこそ",
+    "welcomeBody": "SNS から集めたマルチプレイのルーム情報をリアルタイムで表示しています。1 分ほどで基本の使い方を見てみますか？",
+    "start": "ガイドを始める",
+    "skip": "スキップ",
+    "stepOf": "{n} / {total}",
+    "copyTitle": "ルーム番号をコピー",
+    "copyBody": "ルーム番号をタップすると自動でコピーされます。00000 をタップしてみましょう。",
+    "pinTitle": "ピン留め",
+    "pinBody": "このボタンでルームを一番上に固定できます。固定したルームは消えません。",
+    "blockTitle": "非表示",
+    "blockBody": "しばらく見たくないルーム番号は、1 秒長押しすると 10 分間非表示になります。00000 を長押ししてみましょう。",
+    "settingsTitle": "設定",
+    "settingsBody": "キーワードの絞り込み、表示時間、文字サイズ、テーマはここで変更できます",
+    "focusTitle": "集中モード",
+    "focusBody": "サイドバーを隠して、より多くのルームを表示します。",
+    "autoNext": "操作すると次に進みます",
+    "skipStep": "このステップを飛ばす",
+    "next": "次へ",
+    "finish": "完了",
+    "exit": "ガイドを終了",
+    "example": "これはサンプルです"
+  },
+  "seo": {
+    "title": "プロセカ Station",
+    "description": "SNS に投稿されたプロセカのマルチライブ募集ルーム番号をリアルタイムで収集・表示"
+  }
+}
