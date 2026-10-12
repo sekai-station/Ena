@@ -5,6 +5,7 @@ import type { Room, Statistic, Announcement, StreamItem } from '@/utils/types'
 import { isAnnouncement, roomKey } from '@/utils/types'
 import { parseJson, parseRoom, parseHeartbeat, parseStatistic } from '@/utils/parse'
 import { API_BASE, fetchAnnouncement, fetchPing } from '@/utils/api'
+import { getClientId } from '@/utils/client-id'
 import { i18n } from '@/i18n'
 import { useSettingsStore } from './settings'
 
@@ -84,6 +85,7 @@ export const useRoomStore = defineStore('rooms', () => {
   const ready = ref(false)
 
   let eventSource: EventSource | null = null
+  let streamOpening = false
   let wanted = false
   let retryAttempt = 0
   let retryTimer: ReturnType<typeof setTimeout> | null = null
@@ -308,12 +310,20 @@ export const useRoomStore = defineStore('rooms', () => {
 
   // Items already on screen survive a reconnect: the replayed burst is merged
   // into them, so the list does not blank out.
-  function openStream() {
-    if (eventSource) return
+  async function openStream() {
+    if (eventSource || streamOpening || !wanted) return
+    streamOpening = true
+    let clientId: string
+    try {
+      clientId = await getClientId()
+    } finally {
+      streamOpening = false
+    }
+    if (!wanted || eventSource) return
     cancelRetry()
     connectionState.value = 'connecting'
 
-    const es = new EventSource(`${API_BASE}/realtime`)
+    const es = new EventSource(`${API_BASE}/realtime?client_id=${encodeURIComponent(clientId)}`)
     eventSource = es
     // Also covers a stream that never opens
     resetHeartbeatWatchdog()
