@@ -54,7 +54,7 @@ const roomIdStyle = computed(() => ({
 
 const msgStyle = computed(() => ({
   fontSize: `${settingsStore.fontSize + 2}px`,
-  lineHeight: `${settingsStore.lineHeight}`,
+  lineHeight: `${dense.value ? Math.max(1.2, (Math.round(settingsStore.lineHeight * 10) - 2) / 10) : settingsStore.lineHeight}`,
 }))
 
 

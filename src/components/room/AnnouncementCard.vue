@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettingsStore } from '@/stores/settings'
+import { useRoomStore } from '@/stores/rooms'
 import IconClose from '@/components/icons/IconClose.vue'
 import IconInfo from '@/components/icons/IconInfo.vue'
 
@@ -10,10 +11,11 @@ const emit = defineEmits<{ dismiss: [] }>()
 
 const { t } = useI18n()
 const settingsStore = useSettingsStore()
+const roomStore = useRoomStore()
 
 const msgStyle = computed(() => ({
   fontSize: `${settingsStore.fontSize}px`,
-  lineHeight: `${settingsStore.lineHeight}`,
+  lineHeight: `${roomStore.focusMode ? Math.max(1.2, (Math.round(settingsStore.lineHeight * 10) - 2) / 10) : settingsStore.lineHeight}`,
 }))
 </script>
 
