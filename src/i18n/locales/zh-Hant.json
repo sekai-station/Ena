@@ -33,6 +33,10 @@
     "title": "系統公告"
   },
   "status": {
+    "onlineHistory": "在線人數 · 近48小時",
+    "noOnlineData": "暫無在線統計",
+    "hourlyPeak": "最高在線",
+    "hourlyAverage": "平均在線",
     "title": "運行狀態",
     "pastCount": "歷史統計",
     "channelHealth": "頻道健康度",

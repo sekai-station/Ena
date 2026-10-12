@@ -5,6 +5,7 @@ import { useDocumentVisibility } from '@vueuse/core'
 import type { StatusData } from '@/utils/types'
 import { fetchStatus } from '@/utils/api'
 import IconSpinner from '@/components/icons/IconSpinner.vue'
+import OnlineHistoryChart from '@/components/common/OnlineHistoryChart.vue'
 
 const REFRESH_SECONDS = 10
 
@@ -69,6 +70,7 @@ const updatedText = computed(() =>
 function getMaxTick(ticks: number[]): number {
   return Math.max(1, ...ticks)
 }
+
 </script>
 
 <template>
@@ -95,6 +97,7 @@ function getMaxTick(ticks: number[]): number {
       </div>
 
       <template v-else-if="status">
+        <OnlineHistoryChart :history="status.onlineHistory ?? []" class="mb-8" />
         <!-- Past count cards -->
         <div class="mb-8">
           <h2 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 select-none">{{ t('status.pastCount') }}</h2>

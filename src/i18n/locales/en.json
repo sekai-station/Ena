@@ -33,6 +33,10 @@
     "title": "Announcements"
   },
   "status": {
+    "onlineHistory": "Online browsers · past 48 hours",
+    "noOnlineData": "No online history yet",
+    "hourlyPeak": "Peak online",
+    "hourlyAverage": "Average online",
     "title": "Status",
     "pastCount": "Historical Count",
     "channelHealth": "Channel Health",

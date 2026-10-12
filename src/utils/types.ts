@@ -40,6 +40,14 @@ export interface ChannelHealth {
 export interface StatusData {
   pastCount: PastCount
   channelHealth: ChannelHealth[]
+  onlineHistory?: OnlineHour[]
+}
+
+export interface OnlineHour {
+  hour: number
+  peak: number
+  average: number | null
+  samples: number
 }
 
 // ─── API Envelope ────────────────────────────────────────────────────────────

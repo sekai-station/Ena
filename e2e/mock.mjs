@@ -35,7 +35,16 @@ http.createServer((req, res) => {
   if (down) { res.statusCode = 503; return res.end('down') }
   if (url.pathname === P + '/ping') return json({ time: Date.now() })
   if (url.pathname === P + '/announcement') return json({ time: 1777576669, msg: ANN[url.searchParams.get('lang')] ?? ANN.en })
-  if (url.pathname === P + '/status') return json({ pastCount: { past15m: 12, past1h: 40, past24h: 900 }, channelHealth: [{ name: 'x-crawler', tick: Array.from({ length: 60 }, (_, i) => i % 7) }] })
+  if (url.pathname === P + '/status') return json({
+    pastCount: { past15m: 12, past1h: 40, past24h: 900 },
+    channelHealth: [{ name: 'x-crawler', tick: Array.from({ length: 60 }, (_, i) => i % 7) }],
+    onlineHistory: Array.from({ length: 48 }, (_, i) => ({
+      hour: Math.floor(now() / 3600) * 3600 - (47 - i) * 3600,
+      peak: 20 + (i * 13) % 60,
+      average: 10.5 + (i * 7) % 30,
+      samples: i === 47 ? 3 : 20,
+    })).filter((_, i) => i !== 5),
+  })
   if (url.pathname === P + '/realtime') {
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' })
     res.write('retry: 500\n\n')

@@ -33,6 +33,10 @@
     "title": "系统公告"
   },
   "status": {
+    "onlineHistory": "在线人数 · 近48小时",
+    "noOnlineData": "暂无在线统计",
+    "hourlyPeak": "最高在线",
+    "hourlyAverage": "平均在线",
     "title": "运行状态",
     "pastCount": "历史统计",
     "channelHealth": "频道健康度",

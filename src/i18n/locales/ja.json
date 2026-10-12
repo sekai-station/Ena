@@ -33,6 +33,10 @@
     "title": "システム案内"
   },
   "status": {
+    "onlineHistory": "オンライン数 · 過去48時間",
+    "noOnlineData": "オンライン統計はまだありません",
+    "hourlyPeak": "最大オンライン数",
+    "hourlyAverage": "平均オンライン数",
     "title": "ステータス",
     "pastCount": "過去の集計",
     "channelHealth": "チャンネル稼働状況",
