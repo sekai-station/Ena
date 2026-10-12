@@ -11,5 +11,15 @@ DOMPurify.addHook('afterSanitizeAttributes', node => {
 
 /** Render markdown to sanitized HTML, safe to pass to v-html. */
 export function renderMarkdown(md: string): string {
-  return DOMPurify.sanitize(marked.parse(md, { async: false }))
+  const template = document.createElement('template')
+  template.innerHTML = DOMPurify.sanitize(marked.parse(md, { async: false }))
+  // Keep wide tables scrollable without making the whole page overflow.
+  for (const table of template.content.querySelectorAll('table')) {
+    const wrapper = document.createElement('div')
+    wrapper.className = 'markdown-table'
+    wrapper.tabIndex = 0
+    table.replaceWith(wrapper)
+    wrapper.append(table)
+  }
+  return template.innerHTML
 }

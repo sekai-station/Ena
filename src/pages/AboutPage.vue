@@ -27,84 +27,36 @@ watch(locale, async code => {
 
     <!-- Markdown content -->
     <div class="bg-white dark:bg-gray-900 px-4 sm:px-6 py-6">
-      <div class="about-prose" v-html="html" />
+      <div class="about-prose prose prose-sm prose-gray dark:prose-invert max-w-none prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-code:font-mono prose-pre:font-mono" v-html="html" />
     </div>
   </div>
 </template>
 
-<!-- Not scoped: the markup comes from v-html, and the dark overrides need a
-     real `.dark` ancestor selector. -->
+<!-- v-html content needs unscoped selectors. Typography supplies the prose styles. -->
 <style>
-.about-prose h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: theme('colors.gray.900');
-  margin-bottom: 1rem;
-  line-height: 1.3;
+.about-prose {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-.about-prose h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: theme('colors.gray.800');
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
+.about-prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre;
+  overflow-wrap: normal;
+  tab-size: 2;
 }
-.about-prose h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: theme('colors.gray.700');
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
+.about-prose .markdown-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1.5em 0;
 }
-.about-prose p {
-  font-size: 0.875rem;
-  color: theme('colors.gray.600');
-  line-height: 1.7;
-  margin-bottom: 0.75rem;
+.about-prose .markdown-table:focus-visible {
+  outline: 2px solid theme('colors.primary.500');
+  outline-offset: 2px;
 }
-.about-prose ul,
-.about-prose ol {
-  padding-left: 1.25rem;
-  margin-bottom: 1rem;
+.about-prose .markdown-table table {
+  min-width: 36rem;
+  margin: 0;
 }
-.about-prose ul { list-style: disc; }
-.about-prose ol { list-style: decimal; }
-.about-prose li {
-  font-size: 0.875rem;
-  color: theme('colors.gray.600');
-  line-height: 1.7;
-  margin-bottom: 0.25rem;
-}
-.about-prose li::marker {
-  color: theme('colors.primary.400');
-}
-.about-prose strong {
-  font-weight: 600;
-  color: theme('colors.gray.800');
-}
-.about-prose code {
-  font-size: 0.8125rem;
-  background: theme('colors.gray.100');
-  color: theme('colors.gray.700');
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-}
-.about-prose a {
-  color: theme('colors.primary.600');
-  text-decoration: none;
-  font-weight: 500;
-}
-.about-prose a:hover {
-  text-decoration: underline;
-}
-
-.dark .about-prose h1 { color: theme('colors.gray.100'); }
-.dark .about-prose h2 { color: theme('colors.gray.200'); }
-.dark .about-prose h3 { color: theme('colors.gray.300'); }
-.dark .about-prose p,
-.dark .about-prose li { color: theme('colors.gray.400'); }
-.dark .about-prose strong { color: theme('colors.gray.200'); }
-.dark .about-prose code { background: theme('colors.gray.700'); color: theme('colors.gray.300'); }
-.dark .about-prose a { color: theme('colors.primary.400'); }
+.about-prose td code { white-space: nowrap; }
 </style>
