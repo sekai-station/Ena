@@ -8,5 +8,9 @@ export const router = createRouter({
     { path: '/', name: 'rooms', component: RoomListPage },
     { path: '/about', name: 'about', component: () => import('@/pages/AboutPage.vue') },
     { path: '/status', name: 'status', component: () => import('@/pages/StatusPage.vue') },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: { path: '/', query: {}, hash: '', replace: true },
+    },
   ],
 })
