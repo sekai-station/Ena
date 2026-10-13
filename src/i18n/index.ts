@@ -21,6 +21,18 @@ export const MULTI_LOCALE = LOCALES.length > 1
 
 const STORAGE_KEY = 'pjsk-locale'
 
+/** Match browser preferences only for the welcome suggestion, never implicitly. */
+export function browserLocale(): AppLocale | null {
+  for (const preference of navigator.languages?.length ? navigator.languages : [navigator.language]) {
+    const tag = preference.toLowerCase()
+    const code = tag.startsWith('zh')
+      ? (/^zh-(hant|tw|hk|mo)(-|$)/.test(tag) ? 'zh-Hant' : 'zh-Hans')
+      : tag.startsWith('ja') ? 'ja' : tag.startsWith('en') ? 'en' : null
+    if (code && LOCALES.some(l => l.code === code)) return code
+  }
+  return null
+}
+
 // Where the site is served from ('/' unless Vite's base is changed)
 const BASE = import.meta.env.BASE_URL
 
@@ -75,6 +87,17 @@ export function localeHref(locale: AppLocale, hash = location.hash): string {
   return `${BASE}${siteLocalePath(locale)}${location.search}${hash}`
 }
 
+// Restore an explicitly chosen language on a root visit. Language-specific
+// links still take precedence; fresh visitors and crawlers keep Japanese.
+if (MULTI_LOCALE && location.pathname === BASE) {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    const preference = LOCALES.find(l => l.code === saved)
+    if (preference) history.replaceState(history.state, '', localeHref(preference.code))
+  } catch {
+    // Storage unavailable: use the language selected by the URL.
+  }
+}
 const initialLocale = detectLocale()
 // Apply font before Vue mounts — synchronous, inline style, beats all CSS rules
 applyLocale(initialLocale)
@@ -97,6 +120,10 @@ window.addEventListener('popstate', () => {
 export function setLocale(locale: AppLocale) {
   if (MULTI_LOCALE) history.replaceState(history.state, '', localeHref(locale))
   i18n.global.locale.value = locale
-  localStorage.setItem(STORAGE_KEY, locale)
+  try {
+    localStorage.setItem(STORAGE_KEY, locale)
+  } catch {
+    // Language switching still works without persistent storage.
+  }
   applyLocale(locale)
 }

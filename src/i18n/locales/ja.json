@@ -97,6 +97,7 @@
     "removeFilter": "フィルター「{name}」を削除"
   },
   "tutorial": {
+    "switchLanguage": "日本語に切り替える",
     "welcomeTitle": "プロセカ Station へようこそ",
     "welcomeBody": "SNS から集めたマルチプレイのルーム情報をリアルタイムで表示しています。1 分ほどで基本の使い方を見てみますか？",
     "start": "ガイドを始める",

@@ -97,6 +97,7 @@
     "removeFilter": "Remove filter \"{name}\""
   },
   "tutorial": {
+    "switchLanguage": "Switch to English",
     "welcomeTitle": "Welcome to SEKAI Station",
     "welcomeBody": "Multiplayer room posts from social platforms show up here in real time. Take a minute to learn the basics?",
     "start": "Show me",

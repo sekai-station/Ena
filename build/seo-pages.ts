@@ -84,14 +84,14 @@ export function seoPages(): Plugin {
     return tags.join('\n    ')
   }
 
-  // A useful initial page for visitors and crawlers, even when JavaScript or
-  // the realtime API fails. Vue replaces this with the same visible heading.
+  // Provide a fallback only when JavaScript is disabled. The interactive room
+  // list does not display an extra SEO heading or description.
   function body(code: SiteLocale): string {
     const text = texts.get(code)!
     const links = locales.length > 1
       ? `<nav aria-label="Language">${locales.map(l => `<a lang="${l.code}" hreflang="${l.code}" href="/${siteLocalePath(l.code)}">${escape(texts.get(l.code)!.siteName)} (${l.code})</a>`).join(' · ')}</nav>`
       : ''
-    return `<main class="max-w-4xl mx-auto px-4 pt-3"><h1 class="text-sm font-semibold">${escape(text.title)}</h1><p class="mt-1 text-xs leading-relaxed">${escape(text.description)}</p>${links}</main>`
+    return `<noscript><main class="max-w-4xl mx-auto px-4 pt-3"><h1 class="text-sm font-semibold">${escape(text.title)}</h1><p class="mt-1 text-xs leading-relaxed">${escape(text.description)}</p>${links}</main></noscript>`
   }
 
   function render(html: string, code: SiteLocale, path: string): string {

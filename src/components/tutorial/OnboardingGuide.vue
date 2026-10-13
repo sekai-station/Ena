@@ -7,6 +7,8 @@ import type { Room } from '@/utils/types'
 import { useTutorial, TUTORIAL_KEY, TUTORIAL_ROOM_ID } from '@/composables/useTutorial'
 import { useToast } from '@/composables/useToast'
 import RoomCard from '@/components/room/RoomCard.vue'
+import { browserLocale, LOCALES, setLocale } from '@/i18n'
+import { MESSAGES } from 'virtual:locales'
 
 interface Step {
   id: 'copy' | 'pin' | 'block' | 'settings' | 'focus'
@@ -28,7 +30,13 @@ const BLOCK_PAUSE_MS = 700
 // Example steps, and any step whose button cannot be found, use a centred box
 const CENTERED = { position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const suggestedLocale = browserLocale()
+const languageSuggestion = computed(() => suggestedLocale && suggestedLocale !== locale.value
+  ? LOCALES.find(l => l.code === suggestedLocale) : null)
+// Use the suggested language so visitors can understand the button immediately.
+const languageSuggestionLabel = computed(() => languageSuggestion.value
+  ? MESSAGES[languageSuggestion.value.code]!.tutorial.switchLanguage : '')
 const tutorial = useTutorial()
 const toast = useToast()
 
@@ -185,6 +193,12 @@ const quiet = 'px-2 h-8 rounded-md text-[13px] text-gray-500 hover:text-gray-800
         <img src="/logo.png" alt="" class="w-8 h-8 mb-3" />
         <h2 id="guide-title" class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ t('tutorial.welcomeTitle') }}</h2>
         <p class="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ t('tutorial.welcomeBody') }}</p>
+        <button
+          v-if="languageSuggestion"
+          :lang="languageSuggestion.code"
+          class="mt-3 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 underline underline-offset-4"
+          @click="setLocale(languageSuggestion.code)"
+        >{{ languageSuggestionLabel }}</button>
         <div class="mt-5 flex justify-end gap-2">
           <button :class="quiet" @click="tutorial.close('skipped')">{{ t('tutorial.skip') }}</button>
           <button ref="welcomeStart" :class="primary" @click="startSteps">{{ t('tutorial.start') }}</button>

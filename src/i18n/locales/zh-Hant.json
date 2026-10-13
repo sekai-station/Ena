@@ -97,6 +97,7 @@
     "removeFilter": "移除過濾詞「{name}」"
   },
   "tutorial": {
+    "switchLanguage": "切換為繁體中文",
     "welcomeTitle": "歡迎來到 SEKAI Station",
     "welcomeBody": "這裡會即時刷新從社群平台取得的多人遊戲房間資訊，需要花一分鐘熟悉一下基本操作嗎？",
     "start": "開始指引",

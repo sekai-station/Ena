@@ -542,8 +542,8 @@ test('language entry pages', async () => {
   const saved = await newPage({ locale: 'ja-JP' }, { 'pjsk-locale': 'zh-Hans' })
   await saved.goto(ORIGIN); await saved.waitForSelector('main button.font-mono')
   h = await head(saved)
-  check('saved preferences do not rewrite the root page', h.lang === 'ja' && h.title === seo.ja.title && h.desc === seo.ja.description && h.path === '/', JSON.stringify(h))
-  check('root Open Graph remains Japanese', h.ogTitle === seo.ja.title && h.ogDesc === seo.ja.description && h.ogLocale === 'ja_JP', JSON.stringify(h))
+  check('root restores the explicitly saved language at its URL', h.lang === 'zh-Hans' && h.title === seo['zh-Hans'].title && h.desc === seo['zh-Hans'].description && h.path === '/zh-hans/', JSON.stringify(h))
+  check('restored Open Graph follows the chosen language', h.ogTitle === seo['zh-Hans'].title && h.ogDesc === seo['zh-Hans'].description && h.ogLocale === 'zh_CN', JSON.stringify(h))
 
   // A language switch replaces the current entry, not older navigation entries.
   await page.goto(ORIGIN + 'en/#/')
@@ -572,7 +572,7 @@ test('SEO: stable URLs, static content and crawlable language links', async () =
   for (const [code, path] of [...Object.entries(paths), ['ja', 'ja/']]) {
     const html = await (await fetch(ORIGIN + path)).text()
     const canonical = html.match(/rel="canonical" href="([^"]+)"/)?.[1]
-    const page = await newPage({ locale: code === 'ja' ? 'en-US' : 'ja-JP' }, { 'pjsk-locale': 'zh-Hans' })
+    const page = await newPage({ locale: code === 'ja' ? 'en-US' : 'ja-JP' })
     await page.goto(ORIGIN + path)
     await page.waitForSelector('main button.font-mono')
     const rendered = await metadata(page)
@@ -582,7 +582,7 @@ test('SEO: stable URLs, static content and crawlable language links', async () =
     expect(rendered.canonical).toBe(canonical)
     expect(canonical).toBeTruthy()
     expect(new URL(canonical).pathname).toBe('/' + paths[code])
-    await expect(page.locator('main h1')).toHaveText(rendered.title)
+    await expect(page.locator('main h1')).toHaveCount(0)
     const text = JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1])
     expect(text['@type']).toBe('WebSite')
     expect(text.name).toBe('プロセカ Station')
@@ -603,6 +603,41 @@ test('SEO: stable URLs, static content and crawlable language links', async () =
   const welcome = await newPage({}, { 'pjsk-onboarding': null })
   await welcome.goto(ORIGIN)
   await expect(welcome.getByRole('dialog')).toHaveAttribute('data-nosnippet', '')
+})
+
+test('welcome language suggestion requires consent and remembers the choice', async () => {
+  for (const [browserLanguage, target, path, label] of [
+    ['zh-CN', 'zh-Hans', '/zh-hans/', '切换为简体中文'],
+    ['zh-TW', 'zh-Hant', '/zh-hant/', '切換為繁體中文'],
+    ['en-US', 'en', '/en/', 'Switch to English'],
+  ]) {
+    const page = await newPage({ locale: browserLanguage }, { 'pjsk-onboarding': null })
+    await page.goto(ORIGIN + '?from=welcome#/')
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe('ja')
+    expect(await page.evaluate(() => localStorage.getItem('pjsk-locale'))).toBeNull()
+    await dialog.getByRole('button', { name: label, exact: true }).click()
+    await expect(dialog.getByRole('button', { name: label, exact: true })).toHaveCount(0)
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe(target)
+    expect(await page.evaluate(() => localStorage.getItem('pjsk-locale'))).toBe(target)
+    expect(new URL(page.url()).pathname).toBe(path)
+    expect(new URL(page.url()).search).toBe('?from=welcome')
+    expect(new URL(page.url()).hash).toBe('#/')
+    await page.evaluate(() => localStorage.setItem('pjsk-onboarding', 'skipped'))
+    await page.goto(ORIGIN)
+    await page.waitForSelector('main button.font-mono')
+    expect(new URL(page.url()).pathname).toBe(path)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await page.goto(ORIGIN + 'ja/')
+    await page.waitForSelector('main button.font-mono')
+    expect(await page.evaluate(() => document.documentElement.lang)).toBe('ja')
+    await page.context().close()
+  }
+  const japanese = await newPage({ locale: 'ja-JP' }, { 'pjsk-onboarding': null })
+  await japanese.goto(ORIGIN)
+  await expect(japanese.getByRole('dialog')).toBeVisible()
+  await expect(japanese.getByRole('button', { name: '日本語に切り替える' })).toHaveCount(0)
 })
 
 test('build option: preset tags', async () => {
