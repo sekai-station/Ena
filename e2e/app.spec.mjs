@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { loadEnv } from 'vite'
 
-const BASE = 'http://127.0.0.1:5199/', CTL = 'http://127.0.0.1:8787/ctl/'
+const ORIGIN = 'http://127.0.0.1:5199/', BASE = ORIGIN + 'en/', CTL = 'http://127.0.0.1:8787/ctl/'
 const ROOT = new URL('../', import.meta.url)
 const file = path => new URL(path, ROOT)
 const ctl = op => fetch(CTL + op).then(r => r.text())
@@ -124,7 +124,7 @@ test('burst + announcement + live + menu/copy', async () => {
   await page.waitForSelector('text=中文公告')
   check('announcement follows locale', await page.locator('text=English notice').count() === 0)
   check('locale persisted on explicit choice', await page.evaluate(() => localStorage.getItem('pjsk-locale')) === 'zh-Hans')
-  check('switching on the root page keeps the root address', await page.evaluate(() => location.pathname) === '/')
+  check('switching language uses its own URL', await page.evaluate(() => location.pathname) === '/zh-hans/')
   check('relative time localized', /秒前|分钟前/.test(await page.locator('main').innerText()))
   // dismiss announcement, drop the stream: must not come back after the reconnect
   await page.getByRole('button', { name: '关闭' }).first().click()
@@ -153,24 +153,32 @@ test('filter + sweep', async () => {
 })
 
 test('connection: start, backoff, no buttons', async () => {
-  // record every EventSource the page creates, and whether the app had rendered yet
+  // The persistent client ID is obtained asynchronously; startup must still
+  // open the stream without waiting for the announcement API.
   const recorder = () => {
     window.__esLog = []
     const Orig = window.EventSource
-    window.__esBeforeMount = []
     window.EventSource = function (url, opts) {
       window.__esLog.push(Date.now())
-      window.__esBeforeMount.push(!document.querySelector('#app')?.hasChildNodes())
       return new Orig(url, opts)
     }
     window.EventSource.prototype = Orig.prototype
     Object.assign(window.EventSource, { CONNECTING: 0, OPEN: 1, CLOSED: 2 })
   }
   const page = await newPage()
+  let releaseAnnouncement
+  let announcementHeld = false
+  const gate = new Promise(resolve => { releaseAnnouncement = resolve })
+  await page.route('**/announcement?*', async route => {
+    announcementHeld = true
+    await gate
+    await route.continue()
+  })
   await page.addInitScript(recorder)
   await page.goto(BASE); await page.waitForSelector('main button.font-mono'); await sleep(2500)
   check('one stream per page', await page.evaluate(() => window.__esLog.length) === 1)
-  check('stream opened as soon as the app runs, before it renders', await page.evaluate(() => window.__esBeforeMount[0]) === true)
+  check('stream connects while the announcement request is pending', announcementHeld && await store(page, 's.connectionState') === 'open')
+  releaseAnnouncement()
   check('index.html no longer opens a stream', !(await (await fetch(BASE)).text()).includes('EventSource'))
 
   // the server goes away mid-session
@@ -231,7 +239,7 @@ test('dark mode + pages', async () => {
   check('status page dark background', bg === 'rgb(17, 24, 39)', bg)
   await page.goto(BASE + '#/about'); await page.waitForSelector('.about-prose h1')
   const c = await page.evaluate(() => getComputedStyle(document.querySelector('.about-prose h1')).color)
-  check('about heading colored in dark', c === 'rgb(243, 244, 246)', c)
+  check('about heading colored in dark', c === 'rgb(255, 255, 255)', c)
   const fabs = await page.locator('.fixed.bottom-6 button').evaluateAll(bs => bs.map(b => { const r = b.getBoundingClientRect(); return [b.getAttribute('aria-label'), Math.round(r.left), Math.round(r.top)] }))
   check('focus button stacked above settings', fabs.length === 2 && fabs[0][0] === 'Focus Mode' && fabs[1][0] === 'Settings' && fabs[0][1] === fabs[1][1] && fabs[0][2] < fabs[1][2], JSON.stringify(fabs))
   await page.getByRole('button', { name: 'Settings' }).click()
@@ -433,7 +441,7 @@ test('onboarding guide', async () => {
   check('no console errors', page.errors.length === 0, JSON.stringify(page.errors.slice(0, 3)))
 
   const p2 = await newPage({ viewport: { width: 390, height: 780 }, hasTouch: true }, { 'pjsk-onboarding': null, 'pjsk-locale': 'zh-Hans' })
-  await p2.goto(BASE)
+  await p2.goto(ORIGIN + 'zh-hans/')
   await p2.getByRole('button', { name: '开始指引' }).click(); await sleep(400)
   const box2 = p2.locator('[role=dialog][aria-live]')
   const b2 = await box2.boundingBox()
@@ -452,7 +460,7 @@ test('onboarding guide', async () => {
   check('Escape ends the guide', await p2.locator('[role=dialog]').count() === 0 && await p2.evaluate(() => localStorage.getItem('pjsk-onboarding')) === 'skipped')
 
   const p4 = await newPage({}, { 'pjsk-onboarding': null, 'pjsk-locale': 'zh-Hans' })
-  await p4.goto(BASE)
+  await p4.goto(ORIGIN + 'zh-hans/')
   check('zh-Hans welcome copy', (await p4.getByRole('dialog').innerText()).includes('这里会实时刷新从社交平台获取到的多人游戏房间信息，需要花一分钟熟悉一下基本操作吗？'))
 
   const p3 = await newPage({}, { 'pjsk-onboarding': null })
@@ -469,22 +477,22 @@ test('language entry pages', async () => {
   // What a crawler gets without running scripts
   const unescape = v => v.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
   for (const [code, path] of [['ja', ''], ...Object.entries(CODES).map(([c, p]) => [c, p + '/'])]) {
-    const html = await (await fetch(BASE + path)).text()
+    const html = await (await fetch(ORIGIN + path)).text()
     const lang = html.match(/<html lang="([^"]*)"/)?.[1]
     const title = unescape(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '')
     const desc = unescape(html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '')
     const titles = html.match(/<title>/g)?.length, descs = html.match(/name="description"/g)?.length
     check(`static /${path}: lang, title, description`, lang === code && title === seo[code].title && desc === seo[code].description && titles === 1 && descs === 1, JSON.stringify({ lang, titles, descs }))
     const manifestPath = html.match(/rel="manifest" href="([^"]*)"/)?.[1]
-    const manifest = await (await fetch(new URL(manifestPath, BASE))).json()
+    const manifest = await (await fetch(new URL(manifestPath, ORIGIN))).json()
     const name = code === 'ja' ? 'プロセカ Station' : 'SEKAI Station'
     check(`static /${path}: localized manifest`, manifest.name === name && manifest.short_name === name && manifest.lang === code && manifest.id === '/', JSON.stringify(manifest))
   }
-  check('robots.txt served', /User-agent: \*/.test(await (await fetch(BASE + 'robots.txt')).text()))
+  check('robots.txt served', /User-agent: \*/.test(await (await fetch(ORIGIN + 'robots.txt')).text()))
 
   // A Japanese browser that follows the English link gets English
   const page = await newPage({ locale: 'ja-JP' })
-  await page.goto(BASE + 'en/')
+  await page.goto(ORIGIN + 'en/')
   await page.waitForSelector('main button.font-mono')
   let h = await head(page)
   check('/en/ in a Japanese browser shows English', h.lang === 'en' && await page.locator('aside:visible button', { hasText: 'English' }).count() === 1, JSON.stringify(h))
@@ -505,19 +513,19 @@ test('language entry pages', async () => {
   await page.getByRole('option', { name: '繁體中文' }).click()
   await page.waitForSelector('aside:visible a:has-text("運行狀態")')
   h = await head(page)
-  check('switching language goes back to the root address', h.path === '/' && h.hash === '#/', h.path + h.hash)
+  check('switching language uses its matching entry URL', h.path === '/zh-hant/' && h.hash === '#/', h.path + h.hash)
   check('switching language saves the choice', await page.evaluate(() => localStorage.getItem('pjsk-locale')) === 'zh-Hant')
   check('switching language updates lang, title and description', h.lang === 'zh-Hant' && h.title === seo['zh-Hant'].title && h.desc === seo['zh-Hant'].description, JSON.stringify(h))
   check('switching language updates Open Graph', h.ogTitle === seo['zh-Hant'].title && h.ogDesc === seo['zh-Hant'].description && h.ogLocale === 'zh_TW', JSON.stringify(h))
   check('switching language updates the manifest', await page.locator('link[rel="manifest"]').getAttribute('href') === '/zh-hant/site.webmanifest')
   await page.locator('aside:visible a', { hasText: '運行狀態' }).click()
   await page.waitForSelector('text=x-crawler')
-  check('navigation after switching stays on the root address', (await head(page)).path === '/' && (await head(page)).hash === '#/status')
+  check('navigation after switching stays on the language URL', (await head(page)).path === '/zh-hant/' && (await head(page)).hash === '#/status')
   await page.reload(); await page.waitForSelector('text=x-crawler')
   h = await head(page)
   check('reload keeps the language and page', h.lang === 'zh-Hant' && h.hash === '#/status', JSON.stringify(h))
   // Switching on another page keeps that page
-  await page.goto(BASE + 'en/#/about'); await page.waitForSelector('.about-prose h1')
+  await page.goto(ORIGIN + 'en/#/about'); await page.waitForSelector('.about-prose h1')
   check('/en/ entry page wins over the saved choice', (await head(page)).lang === 'en')
   await page.locator('aside:visible button', { hasText: 'English' }).click()
   await page.getByRole('option', { name: '日本語' }).click()
@@ -526,16 +534,75 @@ test('language entry pages', async () => {
   check('switching on the about page keeps the about page at the root address', h.path === '/' && h.hash === '#/about', h.path + h.hash)
   check('no console errors on language pages', page.errors.length === 0, JSON.stringify(page.errors.slice(0, 3)))
 
-  // The root address still follows the browser, or the saved choice
-  const root = await newPage({ locale: 'ja-JP' })
-  await root.goto(BASE); await root.waitForSelector('main button.font-mono')
+  // The root address is always Japanese, independent of browser preferences.
+  const root = await newPage({ locale: 'en-US' })
+  await root.goto(ORIGIN); await root.waitForSelector('main button.font-mono')
   h = await head(root)
-  check('root follows the browser language and keeps its address', h.lang === 'ja' && h.title === seo.ja.title && h.path === '/', JSON.stringify(h))
+  check('root remains Japanese in an English browser', h.lang === 'ja' && h.title === seo.ja.title && h.path === '/', JSON.stringify(h))
   const saved = await newPage({ locale: 'ja-JP' }, { 'pjsk-locale': 'zh-Hans' })
-  await saved.goto(BASE); await saved.waitForSelector('main button.font-mono')
+  await saved.goto(ORIGIN); await saved.waitForSelector('main button.font-mono')
   h = await head(saved)
-  check('root uses a saved choice', h.lang === 'zh-Hans' && h.title === seo['zh-Hans'].title && h.desc === seo['zh-Hans'].description && h.path === '/', JSON.stringify(h))
-  check('root Open Graph follows a saved choice', h.ogTitle === seo['zh-Hans'].title && h.ogDesc === seo['zh-Hans'].description && h.ogLocale === 'zh_CN', JSON.stringify(h))
+  check('saved preferences do not rewrite the root page', h.lang === 'ja' && h.title === seo.ja.title && h.desc === seo.ja.description && h.path === '/', JSON.stringify(h))
+  check('root Open Graph remains Japanese', h.ogTitle === seo.ja.title && h.ogDesc === seo.ja.description && h.ogLocale === 'ja_JP', JSON.stringify(h))
+
+  // A language switch replaces the current entry, not older navigation entries.
+  await page.goto(ORIGIN + 'en/#/')
+  await page.locator('aside:visible a', { hasText: 'Status' }).click()
+  await page.waitForSelector('text=x-crawler')
+  await page.locator('aside:visible button', { hasText: 'English' }).click()
+  await page.getByRole('option', { name: '简体中文' }).click()
+  await page.goBack()
+  await page.waitForFunction(() => document.documentElement.lang === 'en')
+  h = await head(page)
+  check('back restores the language belonging to the previous URL', h.path === '/en/' && h.lang === 'en')
+  await page.goForward()
+  await page.waitForFunction(() => document.documentElement.lang === 'zh-Hans')
+  h = await head(page)
+  check('forward restores the chosen language and status page', h.path === '/zh-hans/' && h.hash === '#/status' && h.lang === 'zh-Hans')
+})
+
+test('SEO: stable URLs, static content and crawlable language links', async () => {
+  const paths = { ja: '', en: 'en/', 'zh-Hans': 'zh-hans/', 'zh-Hant': 'zh-hant/' }
+  const metadata = p => p.evaluate(() => ({
+    lang: document.documentElement.lang,
+    title: document.title,
+    canonical: document.querySelector('link[rel="canonical"]')?.href,
+    description: document.querySelector('meta[name="description"]')?.content,
+  }))
+  for (const [code, path] of [...Object.entries(paths), ['ja', 'ja/']]) {
+    const html = await (await fetch(ORIGIN + path)).text()
+    const canonical = html.match(/rel="canonical" href="([^"]+)"/)?.[1]
+    const page = await newPage({ locale: code === 'ja' ? 'en-US' : 'ja-JP' }, { 'pjsk-locale': 'zh-Hans' })
+    await page.goto(ORIGIN + path)
+    await page.waitForSelector('main button.font-mono')
+    const rendered = await metadata(page)
+    const sourceTitle = html.match(/<title>([^<]+)<\/title>/)?.[1]
+    expect(rendered.lang).toBe(code)
+    expect(rendered.title).toBe(sourceTitle)
+    expect(rendered.canonical).toBe(canonical)
+    expect(canonical).toBeTruthy()
+    expect(new URL(canonical).pathname).toBe('/' + paths[code])
+    await expect(page.locator('main h1')).toHaveText(rendered.title)
+    const text = JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1])
+    expect(text['@type']).toBe('WebSite')
+    expect(text.name).toBe('プロセカ Station')
+    expect(new URL(text.url).pathname).toBe('/')
+    for (const [language, target] of Object.entries(paths)) {
+      await expect(page.locator('aside:visible a[role="option"][lang="' + language + '"]')).toHaveAttribute('href', '/' + target + '#/')
+    }
+    // Each subsequent iteration uses a fresh context; don't leave extra streams open.
+    await page.context().close()
+  }
+  const noJs = await newPage({ javaScriptEnabled: false })
+  await noJs.goto(ORIGIN)
+  await expect(noJs.getByRole('heading', { level: 1 })).toContainText('プロセカ募集')
+  expect(await noJs.getByRole('navigation').getByRole('link').count()).toBe(4)
+  const sitemap = await (await fetch(ORIGIN + 'sitemap.xml')).text()
+  expect((sitemap.match(/<loc>/g) ?? []).length).toBe(4)
+  expect(sitemap).not.toMatch(/<loc>[^<]+\/ja\/<\/loc>/)
+  const welcome = await newPage({}, { 'pjsk-onboarding': null })
+  await welcome.goto(ORIGIN)
+  await expect(welcome.getByRole('dialog')).toHaveAttribute('data-nosnippet', '')
 })
 
 test('build option: preset tags', async () => {
@@ -566,7 +633,7 @@ test('self-hosted fonts', async () => {
     await page.goto(e.base); await page.waitForSelector('main button.font-mono')
     await page.waitForFunction(() => [...document.fonts].some(f => f.family === 'JetBrains Mono' && f.status === 'loaded'))
     await page.evaluate(() => document.fonts.ready)
-    const foreign = requests.filter(u => !u.startsWith(e.base) && !u.startsWith('http://127.0.0.1:8787/'))
+    const foreign = requests.filter(u => new URL(u).origin !== new URL(e.base).origin && !u.startsWith('http://127.0.0.1:8787/'))
     check(`${e.name}: nothing is fetched from other hosts`, foreign.length === 0, JSON.stringify(foreign.slice(0, 3)))
     const css = requests.map(u => new URL(u).pathname.split('/').pop()).filter(f => f.startsWith('noto-sans-') && f.endsWith('.css')).map(f => f.replace(/-[\w-]{8}\.css$/, ''))
     check(`${e.name}: loads the fonts its languages need`, JSON.stringify(css.sort()) === JSON.stringify(e.css), JSON.stringify(css))

@@ -14,3 +14,8 @@ export type SiteLocale = (typeof SITE_LOCALES)[number]['code']
 
 /** The root URL (hreflang x-default) carries this language's title and description. */
 export const DEFAULT_SITE_LOCALE: SiteLocale = 'ja'
+
+/** Japanese uses the root URL; /ja/ remains a compatible entry alias. */
+export function siteLocalePath(code: SiteLocale): string {
+  return code === DEFAULT_SITE_LOCALE ? '' : `${SITE_LOCALES.find(l => l.code === code)!.path}/`
+}

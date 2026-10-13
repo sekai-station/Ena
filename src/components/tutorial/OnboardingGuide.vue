@@ -177,6 +177,7 @@ const quiet = 'px-2 h-8 rounded-md text-[13px] text-gray-500 hover:text-gray-800
     <div v-if="tutorial.phase.value === 'welcome'" class="fixed inset-0 z-[70] flex items-center justify-center bg-gray-900/45 px-4">
       <div
         role="dialog"
+        data-nosnippet
         aria-modal="true"
         aria-labelledby="guide-title"
         class="w-[22rem] max-w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl p-5 select-none"
@@ -218,6 +219,7 @@ const quiet = 'px-2 h-8 rounded-md text-[13px] text-gray-500 hover:text-gray-800
     <div
       ref="bubble"
       role="dialog"
+      data-nosnippet
       aria-live="polite"
       :aria-label="t(`tutorial.${step.id}Title`)"
       class="z-[65] max-w-[calc(100vw-24px)] bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xl p-4 select-none"

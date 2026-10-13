@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { SITE_LOCALES, DEFAULT_SITE_LOCALE, type SiteLocale } from '../src/i18n/site.ts'
+import { SITE_LOCALES, DEFAULT_SITE_LOCALE, siteLocalePath, type SiteLocale } from '../src/i18n/site.ts'
 import { localeFiles, readMessages } from './locales.ts'
 
 /**
@@ -58,25 +58,40 @@ export function seoPages(): Plugin {
       `<meta name="twitter:card" content="summary" />`,
     ]
     if (siteUrl) {
+      const canonicalPath = locales.length > 1 ? siteLocalePath(code) : path
       tags.push(
-        `<link rel="canonical" href="${href(path)}" />`,
-        `<meta property="og:url" content="${href(path)}" />`,
+        `<link rel="canonical" href="${href(canonicalPath)}" />`,
+        `<meta property="og:url" content="${href(canonicalPath)}" />`,
         `<meta property="og:image" content="${href('logo.png')}" />`,
       )
+      const website = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': `${href('')}#website`,
+        url: href(''),
+        name: texts.get(rootLocale)!.siteName,
+        alternateName: [...new Set(locales.map(l => texts.get(l.code)!.siteName))].filter(name => name !== texts.get(rootLocale)!.siteName),
+        inLanguage: locales.map(l => l.code),
+      }
+      tags.push(`<script type="application/ld+json">${JSON.stringify(website).replace(/</g, '\\u003c')}</script>`)
     }
     if (siteUrl && locales.length > 1) {
       tags.push(
-        ...locales.map(l => `<link rel="alternate" hreflang="${l.code}" href="${href(`${l.path}/`)}" />`),
+        ...locales.map(l => `<link rel="alternate" hreflang="${l.code}" href="${href(siteLocalePath(l.code))}" />`),
         `<link rel="alternate" hreflang="x-default" href="${href('')}" />`,
       )
     }
     return tags.join('\n    ')
   }
 
-  // For crawlers that do not run JavaScript
+  // A useful initial page for visitors and crawlers, even when JavaScript or
+  // the realtime API fails. Vue replaces this with the same visible heading.
   function body(code: SiteLocale): string {
     const text = texts.get(code)!
-    return `<noscript><h1>${escape(text.title)}</h1><p>${escape(text.description)}</p></noscript>`
+    const links = locales.length > 1
+      ? `<nav aria-label="Language">${locales.map(l => `<a lang="${l.code}" hreflang="${l.code}" href="/${siteLocalePath(l.code)}">${escape(texts.get(l.code)!.siteName)} (${l.code})</a>`).join(' · ')}</nav>`
+      : ''
+    return `<main class="max-w-4xl mx-auto px-4 pt-3"><h1 class="text-sm font-semibold">${escape(text.title)}</h1><p class="mt-1 text-xs leading-relaxed">${escape(text.description)}</p>${links}</main>`
   }
 
   function render(html: string, code: SiteLocale, path: string): string {
@@ -94,11 +109,11 @@ export function seoPages(): Plugin {
     const multi = locales.length > 1
     const alternates = multi
       ? [
-          ...locales.map(l => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${href(`${l.path}/`)}" />`),
+          ...locales.map(l => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${href(siteLocalePath(l.code))}" />`),
           `    <xhtml:link rel="alternate" hreflang="x-default" href="${href('')}" />`,
         ].map(line => `\n${line}`).join('')
       : ''
-    const urls = ['', ...(multi ? locales.map(l => `${l.path}/`) : [])]
+    const urls = (multi ? locales.map(l => siteLocalePath(l.code)) : [''])
       .map(path => `  <url>\n    <loc>${href(path)}</loc>${alternates}\n  </url>`)
       .join('\n')
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -138,8 +153,10 @@ ${urls}
     // The dev server serves the root page; the build fills the markers in generateBundle
     transformIndexHtml: {
       order: 'post',
-      handler(html) {
-        return config.command === 'serve' ? render(html, rootLocale, '') : html
+      handler(html, context) {
+        if (config.command !== 'serve') return html
+        const entry = locales.find(l => context.path === `/${l.path}/` || context.path === `/${l.path}/index.html`)
+        return render(html, entry?.code ?? rootLocale, entry ? `${entry.path}/` : '')
       },
     },
 

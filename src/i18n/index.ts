@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import { MESSAGES } from 'virtual:locales'
 import { applyUiFont } from '@/utils/locale-font'
-import { SITE_LOCALES } from './site'
+import { SITE_LOCALES, DEFAULT_SITE_LOCALE, siteLocalePath } from './site'
 
 const ALL_LOCALES = [
   { code: 'ja', label: '日本語' },
@@ -21,10 +21,6 @@ export const MULTI_LOCALE = LOCALES.length > 1
 
 const STORAGE_KEY = 'pjsk-locale'
 
-function isAppLocale(value: string | null): value is AppLocale {
-  return LOCALES.some(l => l.code === value)
-}
-
 // Where the site is served from ('/' unless Vite's base is changed)
 const BASE = import.meta.env.BASE_URL
 
@@ -35,24 +31,12 @@ function localeFromPath(): AppLocale | null {
   return SITE_LOCALES.find(l => l.path === segment)?.code ?? null
 }
 
-// A language entry page decides the language: it is the link that was followed.
-// Otherwise only an explicit choice is persisted, so the browser language keeps
-// being followed until the user picks one.
+// The URL always decides the language, including on the root page. This keeps
+// the static HTML and Google's rendered page identical regardless of browser
+// language or preferences left over from an earlier visit.
 function detectLocale(): AppLocale {
   if (!MULTI_LOCALE) return LOCALES[0].code
-
-  const fromPath = localeFromPath()
-  if (fromPath) return fromPath
-
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (isAppLocale(saved)) return saved
-
-  const lang = navigator.language
-  if (lang.startsWith('ja')) return 'ja'
-  if (['zh-CN', 'zh-Hans', 'zh-SG'].includes(lang) || lang === 'zh') return 'zh-Hans'
-  if (['zh-TW', 'zh-Hant', 'zh-HK'].includes(lang)) return 'zh-Hant'
-  if (lang.startsWith('en')) return 'en'
-  return 'ja'
+  return localeFromPath() ?? DEFAULT_SITE_LOCALE
 }
 
 function applyLocale(locale: AppLocale) {
@@ -78,7 +62,7 @@ function applyLocale(locale: AppLocale) {
     document.querySelectorAll('meta[property="og:locale:alternate"]').forEach((meta, i) => {
       meta.setAttribute('content', alternates[i]!.og)
     })
-    // A rendered page identifies the matching language entry, even at the root URL.
+    // These alternates use the same canonical URLs as the generated HTML.
     const canonical = document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${locale}"]`)?.href
     if (canonical) {
       document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical)
@@ -87,12 +71,8 @@ function applyLocale(locale: AppLocale) {
   }
 }
 
-// The language entry pages exist for search engines. Once a language is picked
-// the app goes back to the root address, keeping the #/… page, so the saved
-// choice decides the language from then on.
-function leaveLocalePath() {
-  if (!localeFromPath()) return
-  history.replaceState(history.state, '', `${BASE}${location.search}${location.hash}`)
+export function localeHref(locale: AppLocale, hash = location.hash): string {
+  return `${BASE}${siteLocalePath(locale)}${location.search}${hash}`
 }
 
 const initialLocale = detectLocale()
@@ -106,9 +86,17 @@ export const i18n = createI18n({
   messages: MESSAGES,
 })
 
+// Back/forward may restore a URL created before a language switch.
+window.addEventListener('popstate', () => {
+  const locale = detectLocale()
+  if (locale === i18n.global.locale.value) return
+  i18n.global.locale.value = locale
+  applyLocale(locale)
+})
+
 export function setLocale(locale: AppLocale) {
+  if (MULTI_LOCALE) history.replaceState(history.state, '', localeHref(locale))
   i18n.global.locale.value = locale
   localStorage.setItem(STORAGE_KEY, locale)
   applyLocale(locale)
-  leaveLocalePath()
 }

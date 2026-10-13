@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { LOCALES, setLocale, type AppLocale } from '@/i18n'
+import { useRoute } from 'vue-router'
+import { LOCALES, setLocale, localeHref, type AppLocale } from '@/i18n'
 import { useDismiss } from '@/composables/useDismiss'
 import IconGlobe from '@/components/icons/IconGlobe.vue'
 import IconChevronDown from '@/components/icons/IconChevronDown.vue'
 import IconCheck from '@/components/icons/IconCheck.vue'
 
 const { locale } = useI18n()
+const route = useRoute()
 const isOpen = ref(false)
 const root = ref<HTMLElement | null>(null)
 
@@ -37,8 +39,8 @@ function choose(code: AppLocale) {
 
     <!-- Dropdown -->
     <Transition name="dropdown">
-      <div v-if="isOpen" role="listbox" class="absolute bottom-full left-0 right-0 mb-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
-        <button
+      <div v-show="isOpen" role="listbox" class="absolute bottom-full left-0 right-0 mb-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
+        <a
           v-for="loc in LOCALES"
           :key="loc.code"
           class="w-full flex items-center justify-between px-3 py-1.5 text-sm transition-colors"
@@ -46,11 +48,12 @@ function choose(code: AppLocale) {
           role="option"
           :aria-selected="locale === loc.code"
           :lang="loc.code"
-          @click="choose(loc.code)"
+          :href="localeHref(loc.code, '#' + route.fullPath)"
+          @click.exact.prevent="choose(loc.code)"
         >
           <span>{{ loc.label }}</span>
           <IconCheck v-if="locale === loc.code" class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
-        </button>
+        </a>
       </div>
     </Transition>
   </div>
